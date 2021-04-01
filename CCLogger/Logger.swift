@@ -19,31 +19,54 @@ public class Logger {
     var namePrefix: String?
     var temporaryPrefix: String?
     var customFileLogger: FileLogger?
-    var addTimeInfo: Bool = true
+
+    public enum AdditionalInfo {
+        /// Calculate time from app start/first log in seconds
+        case timeSinceApplicationStart
+        case threadName(charactersLimit: Int)
+        case levelIdentifier
+        case scope
+    }
+
+    public var additionalInfo: [AdditionalInfo] = [.timeSinceApplicationStart,
+                                                   .threadName(charactersLimit: 4),
+                                                   .levelIdentifier,
+                                                   .scope]
 
     open func log(_ message: String) {
         log(message, scope: nil)
     }
 
     open func log(_ message: String, scope: String? = nil) {
-        var formattedMessage = ""
 
-        if addTimeInfo {
-            formattedMessage += SharedLoggerTools.timeSinceStart
+        var parts: [String] = []
+        for info in additionalInfo {
+            switch info {
+            case .timeSinceApplicationStart:
+                parts.append(SharedLoggerTools.timeSinceStart)
+            case .threadName(let charactersLimit):
+                guard charactersLimit > 0 else { continue }
+
+                var threadName = ""
+                if Thread.current.isMainThread {
+                    threadName = Thread.current.name ?? "MAIN"
+                } else {
+                    threadName = Thread.current.name ?? ""
+                }
+                threadName = String(threadName.prefix(charactersLimit))
+
+                for _ in threadName.count..<charactersLimit {
+                    threadName.append(" ")
+                }
+                parts.append(threadName)
+            case .levelIdentifier:
+                parts.append(level.shortIdentifier)
+            case .scope:
+                parts.append(scope ?? "")
+            }
         }
 
-        var threadName = (Thread.current.name ?? "").prefix(4)
-        for _ in threadName.count..<4 {
-            threadName.append(" ")
-        }
-        formattedMessage += "\(threadName)|"
-        formattedMessage += "\(level.shortIdentifier)|"
-
-        if let scope = scope {
-            formattedMessage += scope + "|"
-        } else {
-            formattedMessage += " |"
-        }
+        var formattedMessage = parts.joined(separator: "|")
 
         if let namePrefix = namePrefix {
             formattedMessage += namePrefix
