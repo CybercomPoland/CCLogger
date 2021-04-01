@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "CCLogger"
-  s.version      = "0.0.1"
+  s.version      = "0.0.2"
   s.summary      = "Swift logging library"
   s.homepage     = "https://github.com/CybercomPoland/CCLogger"
   s.license      = 'Apache License, Version 2.0'
