@@ -83,9 +83,11 @@ public class FileLogger {
 
     /// Force saving all buffered data to file now (for example just before exporting saved log)
     public func saveToFileNow() {
-        guard !bufferedLines.isEmpty else { return }
-        saveToFile(logs: bufferedLines)
-        bufferedLines.removeAll()
+        dispatchQueue.async { [weak self] in
+            guard let self = self, !self.bufferedLines.isEmpty else { return }
+            self.saveToFile(logs: self.bufferedLines)
+            self.bufferedLines.removeAll()
+        }
     }
 
     /// Executed on dispatchQueue
