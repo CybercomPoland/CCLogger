@@ -51,7 +51,7 @@ public class FileLogger {
         }
 
         let formatter = DateFormatter()
-        formatter.dateFormat = "dd-MM-yyyy HH.mm.ss"
+        formatter.dateFormat = "yyyy-MM-dd HH.mm.ss"
         let dateString = formatter.string(from: Date())
         let newFileName = "\(dateString).txt"
         _currentFileName = newFileName
