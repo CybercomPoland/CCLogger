@@ -13,8 +13,8 @@ public class FileLogger {
     private let dispatchQueue: DispatchQueue
 
     public init(levelsToLog: Set<LogLevel>,
-              fileSaveStrategy: FileSaveStrategy,
-              logsDirectoryURL: URL) {
+                fileSaveStrategy: FileSaveStrategy,
+                logsDirectoryURL: URL) {
         self.levelsToLog = levelsToLog
         self.fileSaveStrategy = fileSaveStrategy
         self.logsDirectoryURL = logsDirectoryURL
@@ -81,6 +81,13 @@ public class FileLogger {
         }
     }
 
+    /// Force saving all buffered data to file now (for example just before exporting saved log)
+    public func saveToFileNow() {
+        guard !bufferedLines.isEmpty else { return }
+        saveToFile(logs: bufferedLines)
+        bufferedLines.removeAll()
+    }
+
     /// Executed on dispatchQueue
     private func saveToFile(logs: [String]) {
         let joined = logs.joined(separator: "\n")
@@ -118,8 +125,6 @@ public class FileLogger {
     /// Executed on dispatchQueue
     private func applicationDidEnterBackground() {
         guard case .saveWhenAppGoesToBackground = fileSaveStrategy else { return }
-        guard !bufferedLines.isEmpty else { return }
-        saveToFile(logs: bufferedLines)
-        bufferedLines.removeAll()
+        saveToFileNow()
     }
 }

@@ -49,7 +49,10 @@ public class Logger {
 
                 var threadName = ""
                 if Thread.current.isMainThread {
-                    threadName = Thread.current.name ?? "MAIN"
+                    threadName = Thread.current.name ?? ""
+                    if threadName.isEmpty {
+                        threadName = "MAIN"
+                    }
                 } else {
                     threadName = Thread.current.name ?? ""
                 }
